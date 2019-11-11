@@ -12,14 +12,14 @@
             "email": "harf6802@stthomas.edu"
         },
         {
-            "name": "Nicholas Hillemeier",
-            "email": "hill6908@stthomas.edu"
+            "name": "",
+            "email": ""
         }
     ],
     "main": "server.js",
     "repository": {
         "type": "git",
-        "url": "https://github.com/KristinaHarfmann/CISC-375-assignment2"
+        "url": "https://github.com/KristinaHarfmann/CISC-375-assignment3"
     },
     "dependencies": {
         "express": "^4.17.1",
