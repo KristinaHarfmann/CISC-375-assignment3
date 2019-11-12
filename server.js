@@ -9,55 +9,66 @@ var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 var js2xmlparser = require("js2xmlparser");
+var sqlite3 = require('sqlite3')
 
 var app = express();
 app.use(express.static(__dirname));
 app.use(bodyParser.urlencoded({extended: true}));
 var port = 8000;
+var db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
 
-
-var users;
-var members_filename = path.join(__dirname, 'users.JSON');
-users = fs.readFile(members_filename, (err, data) => {
-		if (err) {
-			console.log('Error reading users.json');
-			users = {};
-		}
-		else {
-			users = JSON.parse(data);
-		}
-	});
-
-app.get('/list-users', (req, res) => {
-	//res.writeHead(200, {'Content-Type': 'text/plain'});
-	//res.write(JSON.stringify(users, null, 4));
-	//res.end();
-	
-	var limit = users.users.length;
-	if(req.query.limit != undefined)
-	{
-		limit = req.query.limit;
-	}
-	
-	var format = req.query.format;
-	var data = { users: []};
-	for (let i = 0; i < limit; i++)
-	{
-		data.users.push(users.users[i]);
-	}
-	
-	if(format == 'xml')
-	{
-		var xml = js2xmlparser.parse("users", data);
-		res.type('xml').send(xml);
-	}
-	else
-	{
-		res.type('json').send(data);
-	}
+// open stpaul_crime.sqlite3 database
+var db = new sqlite3.Database(db_filename, sqlite3.OPEN_READONLY, (err) => {
+    if (err) {
+        console.log('Error opening ' + db_filename);
+    }
+    else {
+        console.log('Now connected to ' + db_filename);
+    }
 });
 
-app.put('/add-user', (req, res) => {
+
+
+app.get('/codes', (req, res) => {
+	db.all("SELECT * FROM Codes ORDER BY code", (err, rows) => {
+		var data = {codes : [] };
+		var line = "";
+		for (i = 0; i < rows.length; i++)
+		{
+			line = rows[i].code + ' : ' + rows[i].incident_type; 
+			data.codes.push(line);
+		}
+		res.type('json').send(data);
+	});
+});
+
+app.get('/neighborhoods', (req, res) => {
+	db.all("SELECT * FROM Neighborhoods ORDER BY neighborhood_number", (err, rows) => {
+		var data = {Neighborhood : [] };
+		var line = "";
+		for (i = 0; i < rows.length; i++)
+		{
+			line = rows[i].neighborhood_number + ' : ' + rows[i].neighborhood_name; 
+			data.codes.push(line);
+		}
+		res.type('json').send(data);
+	});
+});
+
+app.get('/incidents', (req, res) => {
+	db.all("SELECT * FROM Incidents ORDER BY date_time", (err, rows) => {
+		var data = {Incidents : [] };
+		var line = "";
+		for (i = 0; i < rows.length; i++)
+		{
+			line = rows[i].case_number + ' : ' + rows[i]; 
+			data.codes.push(line);
+		}
+		res.type('json').send(data);
+	});
+});
+
+app.put('/new-incident', (req, res) => {
 	var new_user = {
 		id: parseInt(req.body.id),
 		name: req.body.name,
@@ -83,65 +94,9 @@ app.put('/add-user', (req, res) => {
 			res.status(200).send("Success!");
 		});
 	}
+	//sql.insert
+	//db.run
 });
 
-app.delete('/remove-user', (req, res) => {
 
-	
-	var remove_id;
-	var has_id = false;
-	for (let i = 0; i < users.users.length; i++)
-	{
-		if(users.users[i].id == req.body.id)
-		{
-			has_id = true;
-			remove_id = i;
-		}
-	}
-
-	if(!has_id)//if false
-	{
-		res.status(500).send("Error: user id doesn't exists");
-	}
-	else//if true
-	{
-		users.users.splice(remove_id, 1);
-
-		fs.writeFile(members_filename, JSON.stringify(users, null, 4), (err) =>
-		{
-			res.status(200).send("Success!");
-		});
-	}
-});
-
-app.post('/update-user', (req, res) => {
-		
-	var update_id;
-	var has_id = false;
-	for (let i = 0; i < users.users.length; i++)
-	{
-		if(users.users[i].id == req.body.id)
-		{
-			has_id = true;
-			update_id = i;
-		}
-	}
-
-	if(!has_id)//if false
-	{
-		res.status(500).send("Error: user id doesn't exists");
-	}
-	else//if true
-	{
-		users.users[update_id].name = req.body.name;
-		users.users[update_id].email = req.body.email;
-
-		fs.writeFile(members_filename, JSON.stringify(users, null, 4), (err) =>
-		{
-			res.status(200).send("Success!");
-		});
-	}
-});
-
-	
 app.listen(port);
