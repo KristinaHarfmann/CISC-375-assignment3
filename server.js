@@ -127,6 +127,7 @@ app.get('/incidents', (req, res) => {
 		if(req.query.code != undefined)
 		{
 		}
+		
 		for (i = 0; i < rows.length; i++)
 		{
 			var newIncident = "I" + rows[i].case_number;
@@ -158,7 +159,7 @@ app.get('/incidents', (req, res) => {
 
 app.put('/new-incident', (req, res) => {
 	db.all("SELECT * FROM Incidents ORDER BY date_time", (err, rows) => {
-		var newCase = "I" + req.body.case_number;
+		var newCase = req.body.case_number;
 		var newDateTime = req.body.date + "T" + req.body.time;
 		var newCode = req.body.code;
 		var newIncident = req.body.incident;
@@ -169,27 +170,29 @@ app.put('/new-incident', (req, res) => {
 		var has_id = false;
 		for (let i = 0; i < rows.length; i++)
 		{
-			if(rows[i].case_number === req.body.case_number)
+			//console.log("list = " + rows[i].case_number);
+			//console.log("new case = " + req.body.case_number);
+			if(rows[i].case_number == req.body.case_number)
 			{
 				has_id = true;
 			}
 		}
+		
 		if(has_id)
 		{
 			res.status(500).send("Error: incident case number already exists");
 		}
 		else
 		{
-			db.run('INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) VALUES(?,?,?,?,?,?,?)', newCase, newDateTime, newCode, newIncident, newGrid, newNeigh, newBlock);
-			//fs.writeFile(members_filename, JSON.stringify(users, null, 4), (err) =>
-			//{
-				//res.status(200).send("Success!");
-			//});
+			//(case_number, date_time, code, incident, police_grid, neighborhood_number, block)
+			db.run('INSERT INTO Incidents VALUES(?,?,?,?,?,?,?)', newCase, newDateTime, newCode, newIncident, newGrid, newNeigh, newBlock, (err) =>
+			{
+				res.status(200).send("Success!");
+			});
+
 		}
 	});
-	//sql.insert
-	//db.run
-	//curl -X POST -d "case_number=2&date=2019-11-12&time=20:14:13&incident=Theft&police_grid=2&neighborhood_number=12&block=3" http://localhost:8000/new_incident
+	//curl -X PUT -d "case_number=2&date=2019-11-12&time=20:14:13&incident=Theft&police_grid=2&neighborhood_number=12&block=3" http://localhost:8000/new-incident
 });
 
 
