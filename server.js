@@ -37,18 +37,13 @@ app.get('/codes', (req, res) => {
 		if(req.query.code != undefined)
 		{
 			var codes = req.query.code.split(",");
-			for(i = 0; i < codes.length; i++)
+
+			for(i = 0; i < rows.length; i++)
 			{
-				for(j = 0; j < rows.length; j++)
+				if(codes.includes(rows[i].code.toString()))
 				{
-					if(codes[i] == rows[j].code)
-					{
-						//console.log("list codes = " + codes[i]);
-						//console.log("rows = " + rows[j].code);
-						//do they need to be in certain order
-						var newCode = "C" + rows[j].code;
-						data[newCode] = rows[j].incident_type;
-					}
+					var newCode = "C" + rows[i].code;
+					data[newCode] = rows[i].incident_type;
 				}
 			}
 		}
@@ -81,19 +76,18 @@ app.get('/neighborhoods', (req, res) => {
 		if(req.query.id != undefined)
 		{
 			var ids = req.query.id.split(",");
-			for(i = 0; i < ids.length; i++)
+
+			for(i = 0; i < rows.length; i++)
 			{
-				for(j = 0; j < rows.length; j++)
+				if(ids.includes(rows[i].neighborhood_number.toString()))
 				{
-					if(ids[i] == rows[j].neighborhood_number)
-					{
-						//console.log("list ids = " + ids[i]);
-						//console.log("rows = " + rows[j].neighborhood_number);
-						//do they need to be in certain order
-						var newNeigh = "N" + rows[j].neighborhood_number;
-						data[newNeigh] = rows[j].neighborhood_name;
-					}
+					//console.log("list ids = " + ids[i]);
+					//console.log("rows = " + rows[j].neighborhood_number);
+
+					var newNeigh = "N" + rows[i].neighborhood_number;
+					data[newNeigh] = rows[i].neighborhood_name;
 				}
+				
 			}
 		}
 		else
