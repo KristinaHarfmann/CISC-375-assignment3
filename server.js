@@ -116,13 +116,19 @@ app.get('/incidents', (req, res) => {
 		var data = {};
 		var startDate = req.query.start_date;
 		var endDate = req.query.end_date;
+		var limit = 10000;
 		var format = req.query.format;
+		
+		if(req.query.limit != undefined)
+		{
+			limit = req.query.limit;
+		}
 		
 		if(req.query.code != undefined)
 		{
 		}
 		
-		for (i = 0; i < rows.length; i++)
+		for (i = 0; i < limit; i++)
 		{
 			var newIncident = "I" + rows[i].case_number;
 			var newDate = rows[i].date_time.substring(0, 9);
