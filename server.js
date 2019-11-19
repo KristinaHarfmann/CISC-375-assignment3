@@ -9,7 +9,8 @@ var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 var js2xmlparser = require("js2xmlparser");
-var sqlite3 = require('sqlite3')
+var sqlite3 = require('sqlite3');
+var cors = require('cors');
 
 var app = express();
 app.use(express.static(__dirname));
@@ -28,6 +29,7 @@ var db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 });
 
 
+app.use(cors());
 
 app.get('/codes', (req, res) => {
 	db.all("SELECT * FROM Codes ORDER BY code", (err, rows) => {
@@ -134,6 +136,7 @@ app.get('/incidents', (req, res) => {
 			
 		}
 		
+<<<<<<< HEAD
 		
 		
 		
@@ -163,6 +166,23 @@ app.get('/incidents', (req, res) => {
 					
 					
 			
+=======
+		for (i = 0; i < rows.length; i++)
+		{
+			var newIncident = "I" + rows[i].case_number;
+			var newDate = rows[i].date_time.substring(0, 9);
+			var newTime = rows[i].date_time.substring(11);
+			data[newIncident] = 
+			{ 
+				date : newDate,
+				time : newTime,
+				code : rows[i].code, 
+				incident : rows[i].incident, 
+				police_grid : rows[i].police_grid, 
+				neighborhood_number : rows[i].neighborhood_number, 
+				block : rows[i].block
+			};
+>>>>>>> 762f378f8e7719638f9b03683fe3a5b86c07942d
 		}
 		
 		
