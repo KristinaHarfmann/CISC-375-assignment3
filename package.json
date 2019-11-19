@@ -22,8 +22,9 @@
         "url": "https://github.com/KristinaHarfmann/CISC-375-assignment3"
     },
     "dependencies": {
+        "cors": "^2.8.5",
         "express": "^4.17.1",
-        "sqlite3": "^4.1.0",
-        "js2xmlparser": "^4.0.0"
+        "js2xmlparser": "^4.0.0",
+        "sqlite3": "^4.1.0"
     }
 }

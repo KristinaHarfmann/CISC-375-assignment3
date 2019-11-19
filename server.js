@@ -9,7 +9,8 @@ var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 var js2xmlparser = require("js2xmlparser");
-var sqlite3 = require('sqlite3')
+var sqlite3 = require('sqlite3');
+var cors = require('cors');
 
 var app = express();
 app.use(express.static(__dirname));
@@ -28,6 +29,7 @@ var db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 });
 
 
+app.use(cors());
 
 app.get('/codes', (req, res) => {
 	db.all("SELECT * FROM Codes ORDER BY code", (err, rows) => {
@@ -128,7 +130,7 @@ app.get('/incidents', (req, res) => {
 		{
 		}
 		
-		for (i = 0; i < limit; i++)
+		for (i = 0; i < rows.length; i++)
 		{
 			var newIncident = "I" + rows[i].case_number;
 			var newDate = rows[i].date_time.substring(0, 9);
