@@ -112,38 +112,60 @@ app.get('/neighborhoods', (req, res) => {
 });
 
 app.get('/incidents', (req, res) => {
-	db.all("SELECT * FROM Incidents ORDER BY date_time", (err, rows) => {
+	db.all("SELECT * FROM Incidents ORDER BY date_time desc", (err, rows) => {
 		var data = {};
-		var startDate = req.query.start_date;
-		var endDate = req.query.end_date;
+		var endDate = "2019-12-30";
+		var startDate = "2014-08-1";
 		var limit = 10000;
 		var format = req.query.format;
 		
-		if(req.query.limit != undefined)
-		{
+		if(req.query.limit != undefined){
 			limit = req.query.limit;
 		}
 		
-		if(req.query.code != undefined)
-		{
+		
+		
+		if(req.query.start_date != undefined){
+			startDate = req.query.start_date;
+			
+		} 
+		if(req.query.end_date != undefined){
+			endDate = req.query.end_date;
+			
 		}
 		
-		for (i = 0; i < limit; i++)
-		{
-			var newIncident = "I" + rows[i].case_number;
-			var newDate = rows[i].date_time.substring(0, 9);
-			var newTime = rows[i].date_time.substring(11);
-			data[newIncident] = 
-			{ 
-				date : newDate,
-				time : newTime,
-				code : rows[i].code, 
-				incident : rows[i].incident, 
-				police_grid : rows[i].police_grid, 
-				neighborhood_number : rows[i].neighborhood_number, 
-				block : rows[i].block
-			};
+		
+		
+		
+		if(req.query.code != undefined){
+			var codes = req.query.code.split(",");
+			for (i = 0; i < limit; i++){
+								
+					var newIncident = "I" + rows[i].case_number;
+					var newDate = rows[i].date_time.substring(0, 9);
+					var newTime = rows[i].date_time.substring(11);
+					
+				if(codes.includes(rows[i].code.toString()) && (newDate >= startDate && newDate <= endDate)){
+					
+			
+					data[newIncident] = 
+					{ 
+						date : newDate,
+						time : newTime,
+						code : rows[i].code, 
+						incident : rows[i].incident, 
+						police_grid : rows[i].police_grid, 
+						neighborhood_number : rows[i].neighborhood_number, 
+						block : rows[i].block
+					};
+				}
+			}
+					
+					
+			
 		}
+		
+		
 		
 		if(format == 'xml')
 		{
