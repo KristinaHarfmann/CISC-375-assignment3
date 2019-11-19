@@ -135,10 +135,7 @@ app.get('/incidents', (req, res) => {
 			endDate = req.query.end_date;
 			
 		}
-		
-<<<<<<< HEAD
-		
-		
+			
 		
 		if(req.query.code != undefined){
 			var codes = req.query.code.split(",");
@@ -166,8 +163,8 @@ app.get('/incidents', (req, res) => {
 					
 					
 			
-=======
-		for (i = 0; i < rows.length; i++)
+
+		/*for (i = 0; i < rows.length; i++)
 		{
 			var newIncident = "I" + rows[i].case_number;
 			var newDate = rows[i].date_time.substring(0, 9);
@@ -182,8 +179,7 @@ app.get('/incidents', (req, res) => {
 				neighborhood_number : rows[i].neighborhood_number, 
 				block : rows[i].block
 			};
->>>>>>> 762f378f8e7719638f9b03683fe3a5b86c07942d
-		}
+		}*/
 		
 		
 		
