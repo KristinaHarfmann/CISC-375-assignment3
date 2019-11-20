@@ -1,9 +1,3 @@
-//curl http://localhost:8000/list-users
-//curl -X PUT -d "id=3&name=Hello World&email=hw@code.org" http://localhost:8000/add-user
-//curl -X DELETE -d "id=3" http://localhost:8000/remove-user
-//curl -X POST -d "id=12&name=Update&email=update@hello" http://localhost:8000/update-user
-//curl "http://localhost:8000/list-users?limit=3&format=xml"
-
 var fs = require('fs');
 var path = require('path');
 var express = require('express');
@@ -31,8 +25,10 @@ var db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 
 app.use(cors());
 
-app.get('/codes', (req, res) => {
-	db.all("SELECT * FROM Codes ORDER BY code", (err, rows) => {
+app.get('/codes', (req, res) => 
+{
+	db.all("SELECT * FROM Codes ORDER BY code", (err, rows) => 
+	{
 		var data = {};
 		var format = req.query.format;
 		
@@ -70,8 +66,10 @@ app.get('/codes', (req, res) => {
 	});//db.all
 });
 
-app.get('/neighborhoods', (req, res) => {
-	db.all("SELECT * FROM Neighborhoods ORDER BY neighborhood_number", (err, rows) => {
+app.get('/neighborhoods', (req, res) => 
+{
+	db.all("SELECT * FROM Neighborhoods ORDER BY neighborhood_number", (err, rows) => 
+	{
 		var data = { };
 		var format = req.query.format;
 		
@@ -119,11 +117,8 @@ app.get('/incidents', (req, res) => {
 	var setCode = "";
 	var setGrid = "";
 
-
-
 	var dbString = "SELECT * FROM Incidents";
-	//limit, end_date, start_date, id, code, grid
-	
+
 	
 	if(req.query.id != undefined)
 	{//set up ids
@@ -162,16 +157,16 @@ app.get('/incidents', (req, res) => {
 	
 	if(req.query.end_date != undefined)
 	{//put in end date
-		dbString = dbString + " WHERE date_time <= " + req.query.end_date;
+		dbString = dbString + " WHERE date_time <= '" + req.query.end_date + "'";
 	}
 	
 	if(req.query.start_date != undefined && req.query.end_date != undefined)
 	{//put in start date
-		dbString = dbString + " AND date_time >= " + req.query.start_date;
+		dbString = dbString + " AND date_time >= '" + req.query.start_date + "'";
 	}
 	else if(req.query.start_date != undefined && req.query.end_date == undefined)
 	{
-		dbString = dbString + " WHERE date_time >= " + req.query.start_date;
+		dbString = dbString + " WHERE date_time >= '" + req.query.start_date + "'";
 	}
 	
 	
@@ -216,21 +211,15 @@ app.get('/incidents', (req, res) => {
 		dbString = dbString + " LIMIT 10000";
 	}
 	
-	
-	
 	console.log(dbString);
 	
-	
-	db.all(dbString, (err, rows) => {
-		
-		console.log(rows.length);
+	db.all(dbString, (err, rows) => 
+	{
 		for (i = 0; i < rows.length; i++)
 		{
 			var newIncident = "I" + rows[i].case_number;
 			var newDate = rows[i].date_time.substring(0, 9);
 			var newTime = rows[i].date_time.substring(11,19);
-			
-			console.log(rows[i].date_time);
 			
 			data[newIncident] = 
 			{ 
@@ -252,171 +241,8 @@ app.get('/incidents', (req, res) => {
 		else
 		{
 			res.type('json').send(data);
-		}
-			
-	});
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	//db call for each combination of options
-	
-	
-	//no input
-	/*if(req.query.limit == undefined && req.query.end_date == undefined && req.query.start_date == undefined && req.query.id == undefined && req.query.code == undefined && req.query.grid == undefined)
-	{
-		
-		db.all("SELECT top ? * Incidents ORDER BY date_time desc", 10000, (err, rows) => {
-			
-				
-			for (i = 0; i < rows.length; i++)
-			{
-				var newDate = rows[i].date_time.substring(0, 9);
-				var newTime = rows[i].date_time.substring(11);
-				
-				data[newIncident] = 
-				{ 
-					date : newDate,
-					time : newTime,
-					code : rows[i].code, 
-					incident : rows[i].incident, 
-					police_grid : rows[i].police_grid, 
-					neighborhood_number : rows[i].neighborhood_number, 
-					block : rows[i].block
-				};
-			}//for
-			
-		});//db.all
-	}
-	
-	//only limit input
-	if(req.query.limit != undefined && req.query.end_date == undefined && req.query.start_date == undefined && req.query.id == undefined && req.query.code == undefined && req.query.grid == undefined)
-	{
-		db.all("SELECT * Incidents WHERE limit = ? ORDER BY date_time desc", req.query.limit, (err, rows) => {
-			
-		});
-	}
-	
-	//only end_date input
-	if(req.query.limit == undefined && req.query.end_date != undefined && req.query.start_date == undefined && req.query.id == undefined && req.query.code == undefined && req.query.grid == undefined)
-	{
-		db.all("SELECT * Incidents WHERE date_time <= ? ORDER BY date_time desc", req.query.end_date, (err, rows) => {
-			
-		});
-	}
-	
-	//only start_date input
-	if(req.query.limit == undefined && req.query.end_date == undefined && req.query.start_date != undefined && req.query.id == undefined && req.query.code == undefined && req.query.grid == undefined)
-	{
-		db.all("SELECT * Incidents WHERE date_time = ? ORDER BY date_time desc", req.query.start_date, (err, rows) => {
-			
-		});
-	}
-
-	//only id input
-	if(req.query.limit == undefined && req.query.end_date == undefined && req.query.start_date == undefined && req.query.id != undefined && req.query.code == undefined && req.query.grid == undefined)
-	{
-		db.all("SELECT * Incidents WHERE neighborhood_number = ? ORDER BY date_time desc", req.query.id, (err, rows) => {
-			
-		});
-	}
-
-	//only code input
-	if(req.query.limit == undefined && req.query.end_date == undefined && req.query.start_date == undefined && req.query.id == undefined && req.query.code != undefined && req.query.grid == undefined)
-	{
-		db.all("SELECT * Incidents WHERE code = ? ORDER BY date_time desc", req.query.code, (err, rows) => {
-			
-		});
-	}
-
-	//only grid input
-	if(req.query.limit == undefined && req.query.end_date == undefined && req.query.start_date == undefined && req.query.id == undefined && req.query.code == undefined && req.query.grid != undefined)
-	{
-		db.all("SELECT * Incidents WHERE police_grid = ? ORDER BY date_time desc", req.query.grid, (err, rows) => {
-			
-		});
-	}	
-	
-	
-	
-	
-	
-	
-	
-	
-	db.all("SELECT * FROM Incidents ORDER BY date_time desc", (err, rows) => {
-
-		
-		if(req.query.limit != undefined){
-			limit = req.query.limit;
-		}
-		
-		
-		
-		if(req.query.start_date != undefined){
-			startDate = req.query.start_date;
-			
-		} 
-		if(req.query.end_date != undefined){
-			endDate = req.query.end_date;
-			
-		}
-			
-		
-		if(req.query.code != undefined){
-			var codes = req.query.code.split(",");
-			for (i = 0; i < limit; i++){
-								
-					var newIncident = "I" + rows[i].case_number;
-					var newDate = rows[i].date_time.substring(0, 9);
-					var newTime = rows[i].date_time.substring(11);
-					
-				if(codes.includes(rows[i].code.toString()) && (newDate >= startDate && newDate <= endDate)){
-					
-			
-					data[newIncident] = 
-					{ 
-						date : newDate,
-						time : newTime,
-						code : rows[i].code, 
-						incident : rows[i].incident, 
-						police_grid : rows[i].police_grid, 
-						neighborhood_number : rows[i].neighborhood_number, 
-						block : rows[i].block
-					};
-				}
-			}
-		}
-					
-					
-			
-
-		for (i = 0; i < rows.length; i++)
-		{
-			var newIncident = "I" + rows[i].case_number;
-			var newDate = rows[i].date_time.substring(0, 9);
-			var newTime = rows[i].date_time.substring(11);
-			data[newIncident] = 
-			{ 
-				date : newDate,
-				time : newTime,
-				code : rows[i].code, 
-				incident : rows[i].incident, 
-				police_grid : rows[i].police_grid, 
-				neighborhood_number : rows[i].neighborhood_number, 
-				block : rows[i].block
-			};
-		}
-		
-	*/
-	
-	//});//db.all
+		}			
+	});//db.all
 });
 
 app.put('/new-incident', (req, res) => {
@@ -432,8 +258,6 @@ app.put('/new-incident', (req, res) => {
 		var has_id = false;
 		for (let i = 0; i < rows.length; i++)
 		{
-			//console.log("list = " + rows[i].case_number);
-			//console.log("new case = " + req.body.case_number);
 			if(rows[i].case_number == req.body.case_number)
 			{
 				has_id = true;
@@ -446,7 +270,6 @@ app.put('/new-incident', (req, res) => {
 		}
 		else
 		{
-			//(case_number, date_time, code, incident, police_grid, neighborhood_number, block)
 			db.run('INSERT INTO Incidents VALUES(?,?,?,?,?,?,?)', newCase, newDateTime, newCode, newIncident, newGrid, newNeigh, newBlock, (err) =>
 			{
 				res.status(200).send("Success!");
