@@ -211,8 +211,6 @@ app.get('/incidents', (req, res) => {
 		dbString = dbString + " LIMIT 10000";
 	}
 	
-	console.log(dbString);
-	
 	db.all(dbString, (err, rows) => 
 	{
 		for (i = 0; i < rows.length; i++)
@@ -272,7 +270,13 @@ app.put('/new-incident', (req, res) => {
 		{
 			db.run('INSERT INTO Incidents VALUES(?,?,?,?,?,?,?)', newCase, newDateTime, newCode, newIncident, newGrid, newNeigh, newBlock, (err) =>
 			{
-				res.status(200).send("Success!");
+				 if (err) {
+					res.status(500).send("Error: db didn't update");
+				}
+				else {
+					res.status(200).send("Success!");
+				}
+				
 			});
 
 		}
